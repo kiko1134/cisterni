@@ -7,7 +7,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "setup": "node scripts/ensure-env.mjs && npm --prefix backend ci && npm --prefix frontend ci && npm --prefix frontend run build",
+    "setup": "npm --prefix backend ci && npm --prefix frontend ci && npm --prefix frontend run build && node scripts/setup-wizard.mjs",
+    "configure": "node scripts/setup-wizard.mjs",
     "start": "npm --prefix backend start",
     "build": "npm --prefix frontend run build",
     "migrate": "npm --prefix backend run migrate"

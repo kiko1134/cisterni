@@ -19,49 +19,43 @@ runs on **one** address: `http://localhost:4000`.
 
 ---
 
-## 2. Download and set up the app
+## 2. Download the app
 
 Open a terminal (Windows: **PowerShell** or **Command Prompt**) and run:
 
 ```bash
 git clone https://github.com/kiko1134/cisterni.git
 cd cisterni
-npm run setup
 ```
 
-`npm run setup` installs everything, builds the dashboard, and creates a
-`backend/.env` config file from the template.
+## 3. Set up (one command — it asks you a few questions)
 
----
+- **Windows:** double-click **`setup.bat`**  (or run `npm run setup`)
+- **macOS:** double-click **`setup.command`**  (or run `npm run setup`)
+- **Linux:** run `npm run setup`
 
-## 3. Configure this machine
+It installs everything, builds the dashboard, then **asks you**:
+- your **PostgreSQL password** (from step 1)
+- how the PLC is connected — **USB** or **Ethernet**
+- the **serial port** (e.g. `COM3`) or the **PLC IP address** (e.g. `192.168.0.5`)
 
-Open **`backend/.env`** in a text editor and set just two things:
-
-```env
-DB_PASSWORD=<the PostgreSQL password from step 1>
-MODBUS_PORT=COM3        # Windows: check Device Manager → Ports
-                        # Linux:   /dev/ttyUSB0
-```
-
-(Everything else can stay as-is.)
-
----
+…and writes the config for you. No file editing needed.
 
 ## 4. Start
 
-```bash
-npm start
-```
+- **Windows:** double-click **`start.bat`**  (or run `npm start`)
+- **macOS:** double-click **`start.command`**  (or run `npm start`)
+- **Linux:** run `npm start`
 
-On first start it automatically creates the database and tables.
-Then open a browser at:
+On first start it automatically creates the database and tables. Then open:
 
 ```
 http://localhost:4000
 ```
 
-That's it. To stop: press `Ctrl + C` in the terminal.
+That's it. To stop: press `Ctrl + C` in the terminal (or close the window).
+
+> To change settings later (different port, new password): run **`npm run configure`**.
 
 ---
 
