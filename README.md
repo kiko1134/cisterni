@@ -24,7 +24,7 @@ runs on **one** address: `http://localhost:4000`.
 Open a terminal (Windows: **PowerShell** or **Command Prompt**) and run:
 
 ```bash
-git clone https://github.com/<YOUR_USERNAME>/cisterni.git
+git clone https://github.com/kiko1134/cisterni.git
 cd cisterni
 npm run setup
 ```
