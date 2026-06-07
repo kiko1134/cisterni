@@ -227,19 +227,27 @@ async function startCollector() {
   try {
     await ensureOverheatColumnExists();
 
-    await modbusClient.connectRTUBuffered(process.env.MODBUS_PORT, {
-      baudRate: parseInt(process.env.MODBUS_BAUD || '115200', 10),
-      parity: normalizeParity(process.env.MODBUS_PARITY || 'none'),
-      dataBits: parseInt(process.env.MODBUS_DATA_BITS || '8', 10),
-      stopBits: parseInt(process.env.MODBUS_STOP_BITS || '1', 10),
-    });
+    const mode = (process.env.MODBUS_MODE || 'rtu').toLowerCase();
+
+    if (mode === 'tcp') {
+      // Ethernet / Modbus TCP — PLC по IP адрес, порт 502.
+      const host = process.env.MODBUS_HOST;
+      const tcpPort = parseInt(process.env.MODBUS_TCP_PORT || '502', 10);
+      await modbusClient.connectTCP(host, { port: tcpPort });
+      console.log(`✅ MODBUS TCP свързан: ${host}:${tcpPort}, slave ID ${process.env.MODBUS_ID || '1'}`);
+    } else {
+      // Сериен / Modbus RTU през USB.
+      await modbusClient.connectRTUBuffered(process.env.MODBUS_PORT, {
+        baudRate: parseInt(process.env.MODBUS_BAUD || '115200', 10),
+        parity: normalizeParity(process.env.MODBUS_PARITY || 'none'),
+        dataBits: parseInt(process.env.MODBUS_DATA_BITS || '8', 10),
+        stopBits: parseInt(process.env.MODBUS_STOP_BITS || '1', 10),
+      });
+      console.log(`✅ MODBUS RTU свързан: ${process.env.MODBUS_PORT}, 115200/8N1, slave ID ${process.env.MODBUS_ID || '1'}`);
+    }
 
     modbusClient.setID(parseInt(process.env.MODBUS_ID || '1', 10));
     modbusClient.setTimeout(parseInt(process.env.MODBUS_TIMEOUT || '3000', 10));
-
-    console.log(
-      `✅ MODBUS RTU свързан: ${process.env.MODBUS_PORT}, 115200/8N1, slave ID ${process.env.MODBUS_ID || '1'}`
-    );
 
     console.log(
       `ℹ Четене: PLC D${FIRST_REGISTER}..D${LAST_REGISTER} => Modbus ${startAddressLabel()} count ${TOTAL_REGS}`
