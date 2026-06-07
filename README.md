@@ -70,16 +70,26 @@ npm start
 
 ---
 
-## Auto-start on boot (optional, recommended for plant PCs)
+## Auto-start on boot (recommended for plant PCs)
 
-So the app starts by itself after a reboot and restarts if it crashes:
+Makes the app start by itself after every reboot and restart automatically if it
+crashes — no one has to launch it manually. Run this **once**, after setup.
 
+**Windows:** right-click **`install-service.bat`** → **Run as administrator**.
+(It downloads a small helper called NSSM and registers a Windows service named
+`Cisterni`. Manage it later in `services.msc`.)
+
+**Linux:**
 ```bash
-npm install -g pm2
-pm2 start npm --name cisterni -- start      # run from the cisterni folder
-pm2 save
-pm2 startup                                  # follow the printed instruction
+./install-service.sh        # creates a systemd service (asks for sudo)
 ```
+
+To check / control it afterwards:
+- Windows: `services.msc`, or `nssm stop Cisterni` / `nssm start Cisterni`
+- Linux: `sudo systemctl status cisterni` / `stop` / `start`
+
+> PostgreSQL already auto-starts on boot (its installer registers it as a service),
+> so once this is done the whole system comes back up on its own after a power cut.
 
 ---
 

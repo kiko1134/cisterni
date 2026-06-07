@@ -12,6 +12,10 @@ frontend/.env
 # Logs
 *.log
 npm-debug.log*
+logs/
+
+# Downloaded service helper (NSSM)
+tools/
 
 # OS / editor
 .DS_Store
