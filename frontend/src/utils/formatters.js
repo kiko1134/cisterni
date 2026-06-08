@@ -12,8 +12,9 @@ export const formatLevel = (val) =>
 export const formatTemp = (val) =>
   val != null ? `${val.toFixed(1)} °C` : '—';
 
+// Стойността вече е в тонове (преобразувана в API слоя).
 export const formatMass = (val) =>
-  val != null ? `${val.toLocaleString('bg-BG', { maximumFractionDigits: 0 })} kg` : '—';
+  val != null ? `${val.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t` : '—';
 
 export const formatLevelMm = (val) =>
   val != null ? `${val.toFixed(0)} mm` : '—';

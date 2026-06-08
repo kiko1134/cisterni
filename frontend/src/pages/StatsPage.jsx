@@ -69,7 +69,7 @@ export default function StatsPage() {
                   {t('kpi_incoming')}
                 </Typography>
                 <Typography variant="h4" color="#4caf50" fontWeight="bold">
-                  {totalIn.toLocaleString('bg-BG')} kg
+                  {totalIn.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t
                 </Typography>
               </Paper>
             </Grid>
@@ -79,7 +79,7 @@ export default function StatsPage() {
                   {t('kpi_outgoing')}
                 </Typography>
                 <Typography variant="h4" color="#f44336" fontWeight="bold">
-                  {totalOut.toLocaleString('bg-BG')} kg
+                  {totalOut.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t
                 </Typography>
               </Paper>
             </Grid>
@@ -89,7 +89,7 @@ export default function StatsPage() {
                   {t('kpi_remainder')}
                 </Typography>
                 <Typography variant="h4" color="#2196f3" fontWeight="bold">
-                  {(totalIn - totalOut).toLocaleString('bg-BG')} kg
+                  {(totalIn - totalOut).toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t
                 </Typography>
               </Paper>
             </Grid>
@@ -109,7 +109,7 @@ export default function StatsPage() {
                   <YAxis stroke="#999" fontSize={11} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
-                    formatter={(v) => [`${v.toLocaleString('bg-BG')} kg`]}
+                    formatter={(v) => [`${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_in" name={t('bar_incoming')} radius={[4, 4, 0, 0]}>
                     {stats.map((_, index) => (
@@ -132,7 +132,7 @@ export default function StatsPage() {
                   <YAxis stroke="#999" fontSize={11} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
-                    formatter={(v) => [`${v.toLocaleString('bg-BG')} kg`]}
+                    formatter={(v) => [`${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_out" name={t('bar_outgoing')} radius={[4, 4, 0, 0]}>
                     {stats.map((_, index) => (

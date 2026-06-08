@@ -168,7 +168,7 @@ export default function TankCard({ tank, dense = false }) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <ScaleIcon sx={{ fontSize: 'clamp(12px, 8cqmin, 18px)', color: 'text.secondary' }} />
             <Typography sx={{ fontSize: 'clamp(0.6rem, 7cqmin, 0.95rem)', fontWeight: 700, lineHeight: 1 }}>
-              {tank.mass?.toFixed(0)} kg
+              {tank.mass?.toFixed(1)} t
             </Typography>
           </Box>
         </Box>
@@ -188,7 +188,7 @@ export default function TankCard({ tank, dense = false }) {
           />
           <Chip
             icon={<ScaleIcon />}
-            label={`${tank.mass?.toFixed(0)} kg`}
+            label={`${tank.mass?.toFixed(1)} t`}
             variant="outlined"
             sx={{
               fontSize: 'clamp(0.6rem, 6.5cqmin, 1rem)',

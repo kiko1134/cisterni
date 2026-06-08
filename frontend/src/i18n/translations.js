@@ -42,7 +42,7 @@ export const translations = {
   trend_title:      { bg: 'Тренд графика', en: 'Trend chart', ru: 'График тренда' },
   metric_level:     { bg: 'Ниво (%)',    en: 'Level (%)',   ru: 'Уровень (%)' },
   metric_temp:      { bg: 'Температура (°C)', en: 'Temperature (°C)', ru: 'Температура (°C)' },
-  metric_mass:      { bg: 'Маса (kg)',   en: 'Mass (kg)',   ru: 'Масса (кг)' },
+  metric_mass:      { bg: 'Маса (t)',    en: 'Mass (t)',    ru: 'Масса (т)' },
 
   // ── Детайл за резервоар / Tank detail ─────────────────────────────────────
   detail_level:     { bg: 'Ниво',        en: 'Level',       ru: 'Уровень' },
@@ -55,13 +55,13 @@ export const translations = {
   kpi_incoming:     { bg: 'Постъпила суровина', en: 'Incoming material', ru: 'Поступившее сырьё' },
   kpi_outgoing:     { bg: 'Изпратена за преработка', en: 'Sent for processing', ru: 'Отправлено на переработку' },
   kpi_remainder:    { bg: 'Реализация (остатък)', en: 'Realization (remainder)', ru: 'Реализация (остаток)' },
-  chart_incoming_by_tank: { bg: 'Постъпила суровина по резервоар [kg]', en: 'Incoming material by tank [kg]', ru: 'Поступившее сырьё по резервуарам [кг]' },
-  chart_outgoing_by_tank: { bg: 'Изпратена за преработка по резервоар [kg]', en: 'Sent for processing by tank [kg]', ru: 'Отправлено на переработку по резервуарам [кг]' },
+  chart_incoming_by_tank: { bg: 'Постъпила суровина по резервоар [t]', en: 'Incoming material by tank [t]', ru: 'Поступившее сырьё по резервуарам [т]' },
+  chart_outgoing_by_tank: { bg: 'Изпратена за преработка по резервоар [t]', en: 'Sent for processing by tank [t]', ru: 'Отправлено на переработку по резервуарам [т]' },
   chart_compare_fill: { bg: 'Сравнение — текущо запълване [%]', en: 'Comparison — current fill [%]', ru: 'Сравнение — текущее заполнение [%]' },
   stats_error:      { bg: 'Грешка при зареждане на статистиката!', en: 'Error loading statistics!', ru: 'Ошибка загрузки статистики!' },
   legend_avg_level: { bg: 'Средно ниво %', en: 'Average level %', ru: 'Средний уровень %' },
-  bar_incoming:     { bg: 'Постъпила [kg]', en: 'Incoming [kg]', ru: 'Поступило [кг]' },
-  bar_outgoing:     { bg: 'Изпратена [kg]', en: 'Sent [kg]', ru: 'Отправлено [кг]' },
+  bar_incoming:     { bg: 'Постъпила [t]', en: 'Incoming [t]', ru: 'Поступило [т]' },
+  bar_outgoing:     { bg: 'Изпратена [t]', en: 'Sent [t]', ru: 'Отправлено [т]' },
 
   // ── Таблица с данни / Readings table ──────────────────────────────────────
   col_datetime:     { bg: 'Дата / Час',  en: 'Date / Time', ru: 'Дата / Время' },

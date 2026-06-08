@@ -16,7 +16,7 @@ import { useT } from '../../i18n/LanguageContext';
 const METRICS = [
   { key: 'level_pct', labelKey: 'metric_level', color: '#2196f3', unit: '%' },
   { key: 'temperature', labelKey: 'metric_temp', color: '#ff9800', unit: '°C' },
-  { key: 'mass', labelKey: 'metric_mass', color: '#4caf50', unit: 'kg' },
+  { key: 'mass', labelKey: 'metric_mass', color: '#4caf50', unit: 't' },
 ];
 
 export default function TrendChart({ data, isLoading }) {
@@ -113,7 +113,7 @@ export default function TrendChart({ data, isLoading }) {
                 <YAxis
                   yAxisId="mass"
                   orientation={activeMetrics.includes('temperature') ? 'left' : 'right'}
-                  unit=" kg"
+                  unit=" t"
                   stroke="#4caf50"
                   fontSize={12}
                   hide={activeMetrics.includes('level_pct')} // скрива се ако вече има лява ос

@@ -9,11 +9,22 @@ const api = axios.create({
   timeout: 10_000,
 });
 
+// Бекендът съхранява масата в kg. UI-то я показва в тонове → делим на 1000.
+const KG_PER_TON = 1000;
+const massToTons = (row) =>
+  row && row.mass != null ? { ...row, mass: Number(row.mass) / KG_PER_TON } : row;
+const massListToTons = (rows) => (Array.isArray(rows) ? rows.map(massToTons) : rows);
+
 export const fetchTanksCurrent = () =>
-  USE_MOCK ? mockApi.fetchTanksCurrent() : api.get('/tanks/current').then((r) => r.data);
+  (USE_MOCK ? mockApi.fetchTanksCurrent() : api.get('/tanks/current').then((r) => r.data)).then(
+    massListToTons
+  );
 
 export const fetchTankHistory = (id, from, to) =>
-  USE_MOCK ? mockApi.fetchTankHistory(id, from, to) : api.get(`/tanks/${id}/history`, { params: { from, to } }).then((r) => r.data);
+  (USE_MOCK
+    ? mockApi.fetchTankHistory(id, from, to)
+    : api.get(`/tanks/${id}/history`, { params: { from, to } }).then((r) => r.data)
+  ).then(massListToTons);
 
 // export const fetchTankStats = (from, to) =>
 //   USE_MOCK ? mockApi.fetchTankStats(from, to) : api.get('/tanks/stats', { params: { from, to } }).then((r) => r.data);
@@ -25,8 +36,8 @@ export const fetchTankHistory = (id, from, to) =>
         r.data.map((item) => ({
           ...item,
           tank_id: Number(item.tank_id),
-          total_in: Number(item.total_in ?? 0),
-          total_out: Number(item.total_out ?? 0),
+          total_in: Number(item.total_in ?? 0) / KG_PER_TON,
+          total_out: Number(item.total_out ?? 0) / KG_PER_TON,
           avg_level_pct: Number(item.avg_level_pct ?? 0),
           avg_temp: Number(item.avg_temp ?? 0),
         }))
