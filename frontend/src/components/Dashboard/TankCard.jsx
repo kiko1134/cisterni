@@ -5,6 +5,7 @@ import ThermostatIcon from '@mui/icons-material/Thermostat';
 import ScaleIcon from '@mui/icons-material/Scale';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { ALARM_COLORS, getTankStatus } from '../../utils/alarmColors';
+import { getTankWaterColor } from '../../utils/tankColors';
 import { useT } from '../../i18n/LanguageContext';
 
 // Хоризонтално движение на вълните (безшевно, защото съдържа 2 еднакви вълни).
@@ -26,9 +27,9 @@ export default function TankCard({ tank, dense = false }) {
   const color = ALARM_COLORS[status];
   const level = Math.min(Math.max(tank.level_pct ?? 0, 0), 100);
 
-  // Цвят на водата — ярко синьо/циан за контраст върху тъмносиния фон.
-  const WATER_TOP = '#4fc3f7'; // светъл циан (повърхност)
-  const WATER_BOTTOM = '#0277bd'; // по-тъмно синьо (дъно)
+  // Цвят на течността според резервоара; повърхността е малко по-светла.
+  const waterColor = getTankWaterColor(tank.id);
+  const waterSurface = `color-mix(in srgb, ${waterColor}, white 35%)`;
 
   return (
     <Paper
@@ -85,7 +86,7 @@ export default function TankCard({ tank, dense = false }) {
               left: 0,
               right: 0,
               height: `${level}%`,
-              background: `linear-gradient(to bottom, ${WATER_TOP}cc 0%, ${WATER_BOTTOM}ee 100%)`,
+              background: `linear-gradient(to bottom, ${waterSurface} 0%, ${waterColor} 100%)`,
               transition: 'height 0.8s ease-in-out',
             }}
           >
@@ -120,7 +121,7 @@ export default function TankCard({ tank, dense = false }) {
                     >
                       <path
                         d="M0,20 C150,40 350,0 600,20 C850,40 1050,0 1200,20 L1200,40 L0,40 Z"
-                        fill={`${WATER_TOP}cc`}
+                        fill={waterSurface}
                       />
                     </Box>
                   ))}
