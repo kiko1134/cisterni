@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { Client } = require('pg');
 const pool = require('./index');
+const TANK_DEFAULTS = require('./tankDefaults');
 
 // Създава базата данни (ако липсва), като се свързва към служебната БД "postgres".
 async function ensureDatabase() {
@@ -51,13 +52,17 @@ async function runMigration() {
       );
     `);
 
-    // Seed — 16 резервоара
-    await client.query(`
-      INSERT INTO tanks (id, name)
-      SELECT g, 'Резервоар ' || g
-      FROM generate_series(1, 16) AS g
-      ON CONFLICT (id) DO NOTHING;
-    `);
+    // Seed — 16 резервоара с фабрични диаметър/височина (само при първо създаване).
+    // name остава празно → UI показва преведено име; останалите колони ползват DEFAULT.
+    const tankValues = TANK_DEFAULTS
+      .map((_, i) => `($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`)
+      .join(', ');
+    const tankParams = TANK_DEFAULTS.flatMap((t) => [t.id, t.diameter, t.height]);
+    await client.query(
+      `INSERT INTO tanks (id, diameter, height) VALUES ${tankValues}
+       ON CONFLICT (id) DO NOTHING`,
+      tankParams
+    );
 
     // Измервания
     await client.query(`

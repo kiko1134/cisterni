@@ -11,6 +11,7 @@
     "configure": "node scripts/setup-wizard.mjs",
     "start": "npm --prefix backend start",
     "build": "npm --prefix frontend run build",
-    "migrate": "npm --prefix backend run migrate"
+    "migrate": "npm --prefix backend run migrate",
+    "seed:tanks": "npm --prefix backend run seed:tanks"
   }
 }
