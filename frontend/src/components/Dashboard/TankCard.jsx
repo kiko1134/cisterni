@@ -43,6 +43,9 @@ export default function TankCard({ tank, dense = false }) {
         borderRadius: 2,
         position: 'relative',
         overflow: 'hidden',
+        // Прави картата "контейнер" — текстът се мащабира спрямо нейния размер
+        // (cqmin), за да не се застъпва при различен мащаб/резолюция (Windows).
+        containerType: 'size',
         transition: 'transform 0.2s, box-shadow 0.2s',
         '&:hover': {
           transform: 'translateY(-3px)',
@@ -56,7 +59,7 @@ export default function TankCard({ tank, dense = false }) {
         variant={dense ? 'caption' : 'subtitle2'}
         color="text.secondary"
         noWrap
-        sx={{ fontWeight: 600, lineHeight: 1.2, fontSize: dense ? '0.9rem' : '1.25rem' }}
+        sx={{ fontWeight: 700, lineHeight: 1.2, fontSize: 'clamp(0.7rem, 9cqmin, 1.25rem)' }}
       >
         {`${t('tank')} ${tank.id}`}
       </Typography>
@@ -140,7 +143,7 @@ export default function TankCard({ tank, dense = false }) {
           <Typography
             fontWeight="bold"
             color={color}
-            sx={{ fontSize: dense ? '1.6rem' : '3rem', lineHeight: 1 }}
+            sx={{ fontSize: 'clamp(1rem, 22cqmin, 3rem)', lineHeight: 1 }}
           >
             {tank.level_pct?.toFixed(1)}%
           </Typography>
@@ -153,18 +156,18 @@ export default function TankCard({ tank, dense = false }) {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, mt: 0.25 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <ThermostatIcon
-              sx={{ fontSize: 16, color: status === 'highTemp' ? 'warning.main' : 'text.secondary' }}
+              sx={{ fontSize: 'clamp(12px, 8cqmin, 18px)', color: status === 'highTemp' ? 'warning.main' : 'text.secondary' }}
             />
             <Typography
-              sx={{ fontSize: '0.9rem', fontWeight: 700, lineHeight: 1 }}
+              sx={{ fontSize: 'clamp(0.6rem, 7cqmin, 0.95rem)', fontWeight: 700, lineHeight: 1 }}
               color={status === 'highTemp' ? 'warning.main' : 'text.primary'}
             >
               {tank.temperature?.toFixed(1)} °C
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <ScaleIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-            <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, lineHeight: 1 }}>
+            <ScaleIcon sx={{ fontSize: 'clamp(12px, 8cqmin, 18px)', color: 'text.secondary' }} />
+            <Typography sx={{ fontSize: 'clamp(0.6rem, 7cqmin, 0.95rem)', fontWeight: 700, lineHeight: 1 }}>
               {tank.mass?.toFixed(0)} kg
             </Typography>
           </Box>
@@ -176,13 +179,23 @@ export default function TankCard({ tank, dense = false }) {
             label={`${tank.temperature?.toFixed(1)} °C`}
             color={status === 'highTemp' ? 'warning' : 'default'}
             variant="outlined"
-            sx={{ fontSize: '1rem', height: 32, '& .MuiChip-icon': { fontSize: 20 } }}
+            sx={{
+              fontSize: 'clamp(0.6rem, 6.5cqmin, 1rem)',
+              height: 'auto',
+              '& .MuiChip-label': { px: 0.75, py: 0.25 },
+              '& .MuiChip-icon': { fontSize: 'clamp(12px, 8cqmin, 20px)' },
+            }}
           />
           <Chip
             icon={<ScaleIcon />}
             label={`${tank.mass?.toFixed(0)} kg`}
             variant="outlined"
-            sx={{ fontSize: '1rem', height: 32, '& .MuiChip-icon': { fontSize: 20 } }}
+            sx={{
+              fontSize: 'clamp(0.6rem, 6.5cqmin, 1rem)',
+              height: 'auto',
+              '& .MuiChip-label': { px: 0.75, py: 0.25 },
+              '& .MuiChip-icon': { fontSize: 'clamp(12px, 8cqmin, 20px)' },
+            }}
           />
         </Box>
       )}
@@ -194,9 +207,13 @@ export default function TankCard({ tank, dense = false }) {
             sx={{ position: 'absolute', top: 4, right: 4, fontSize: 16, color }}
           />
         ) : (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
-            <WarningAmberIcon sx={{ fontSize: 16, color }} />
-            <Typography variant="caption" color={color} sx={{ fontSize: '0.95rem' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5, minWidth: 0 }}>
+            <WarningAmberIcon sx={{ fontSize: 'clamp(12px, 8cqmin, 18px)', color, flexShrink: 0 }} />
+            <Typography
+              noWrap
+              color={color}
+              sx={{ fontSize: 'clamp(0.55rem, 6cqmin, 0.9rem)', lineHeight: 1.1 }}
+            >
               {status === 'maxLevel' && t('alarm_max_level')}
               {status === 'minLevel' && t('alarm_min_level')}
               {status === 'highTemp' && t('alarm_high_temp')}
