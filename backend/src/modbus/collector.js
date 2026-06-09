@@ -17,6 +17,12 @@ const REG_ALARM_LOW = parseInt(process.env.REG_ALARM_LOW || '848', 10);       //
 const REG_ALARM_HIGH = parseInt(process.env.REG_ALARM_HIGH || '849', 10);     // D849, bit 0..15
 const REG_OVERHEAT = parseInt(process.env.REG_OVERHEAT || '850', 10);         // D850, bit 0..15
 
+// Ниво (0..100) идва ДИРЕКТНО от PLC: D620, D622, ... D650 (стъпка 2, по 1 дума/резервоар).
+// Нивото е FLOAT32 (2 думи/резервоар, напр. 12.4), затова стъпката е 2.
+const REG_LEVEL_BASE = parseInt(process.env.REG_LEVEL_BASE || '620', 10);
+const LEVEL_STEP = 2;
+const LEVEL_COUNT = NUM_TANKS * LEVEL_STEP; // 16 × 2 думи => 32 регистъра (D620..D651)
+
 const FIRST_REGISTER = REG_MASS_BASE;
 const LAST_REGISTER = REG_OVERHEAT;
 const TOTAL_REGS = LAST_REGISTER - FIRST_REGISTER + 1; // 800..850 inclusive => 51 registers
@@ -135,6 +141,10 @@ async function collectOnce() {
   const data = await modbusClient.readHoldingRegisters(startAddress, TOTAL_REGS);
   const regs = data.data;
 
+  // Ниво (0..100) — отделен блок D620..D650 (PLC го дава директно, не се изчислява).
+  const levelData = await modbusClient.readHoldingRegisters(holdingAddress(REG_LEVEL_BASE), LEVEL_COUNT);
+  const levelRegs = levelData.data;
+
   // ---- RAW PLC DUMP ---------------------------------------------------------
   console.log('\n══════════════════════════════════════════════════════════════');
   console.log(`📡 RAW PLC READ @ ${now.toISOString()}`);
@@ -177,13 +187,22 @@ async function collectOnce() {
     const maxAlarm = !!((maxLevelWord >> i) & 1);
     const overheatAlarm = !!((overheatWord >> i) & 1);
 
-    const { level_mm, level_pct } = calculateLevelFromMassKg(massKg, tank);
+    // Ниво — директно от PLC като FLOAT32 (2 думи, %), без изчисление от масата.
+    const levelPlcReg = REG_LEVEL_BASE + i * LEVEL_STEP;
+    const lw1 = levelRegs[i * LEVEL_STEP];
+    const lw2 = levelRegs[i * LEVEL_STEP + 1];
+    const rawLevel = combineWordsToFloat32(lw1, lw2);
+    const level_pct = parseFloat(Math.min(Math.max(rawLevel, 0), 100).toFixed(1));
+    const heightM = Number(tank.height) || 0;
+    const level_mm = heightM > 0
+      ? parseFloat(((level_pct / 100) * heightM * 1000).toFixed(1))
+      : null;
 
     console.log(
       `     Tank #${String(i + 1).padStart(2)} (id=${tank.id}, "${tank.name ?? ''}")\n` +
       `        mass : D${massPlcReg}=0x${(w1 & 0xffff).toString(16).padStart(4, '0')} D${massPlcReg + 1}=0x${(w2 & 0xffff).toString(16).padStart(4, '0')} => float32=${rawMass} => ${massKg} kg\n` +
       `        temp : D${tempPlcReg}=${rawTemp} (signed ${toSigned16(rawTemp)}) => ${temperature} °C\n` +
-      `        level: ${level_mm} mm / ${level_pct} %\n` +
+      `        level: D${levelPlcReg}=${rawLevel} => ${level_pct} % (${level_mm} mm)\n` +
       `        alarm: min=${minAlarm} max=${maxAlarm} overheat=${overheatAlarm}`
     );
 
