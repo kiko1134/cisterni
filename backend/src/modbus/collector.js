@@ -18,10 +18,10 @@ const REG_ALARM_HIGH = parseInt(process.env.REG_ALARM_HIGH || '849', 10);     //
 const REG_OVERHEAT = parseInt(process.env.REG_OVERHEAT || '850', 10);         // D850, bit 0..15
 
 // Ниво (0..100) идва ДИРЕКТНО от PLC: D620, D622, ... D650 (стъпка 2, по 1 дума/резервоар).
-// Нивото е FLOAT32 (2 думи/резервоар, напр. 12.4), затова стъпката е 2.
+// Нивото е 16-битова дума (0..100) на адреси D620, D622, ... D650 (стъпка 2).
 const REG_LEVEL_BASE = parseInt(process.env.REG_LEVEL_BASE || '620', 10);
 const LEVEL_STEP = 2;
-const LEVEL_COUNT = NUM_TANKS * LEVEL_STEP; // 16 × 2 думи => 32 регистъра (D620..D651)
+const LEVEL_COUNT = (NUM_TANKS - 1) * LEVEL_STEP + 1; // D620..D650 => 31 регистъра
 
 const FIRST_REGISTER = REG_MASS_BASE;
 const LAST_REGISTER = REG_OVERHEAT;
@@ -187,12 +187,10 @@ async function collectOnce() {
     const maxAlarm = !!((maxLevelWord >> i) & 1);
     const overheatAlarm = !!((overheatWord >> i) & 1);
 
-    // Ниво — директно от PLC като FLOAT32 (2 думи, %), без изчисление от масата.
+    // Ниво — директно от PLC: 16-битова дума 0..100, без изчисление от масата.
     const levelPlcReg = REG_LEVEL_BASE + i * LEVEL_STEP;
-    const lw1 = levelRegs[i * LEVEL_STEP];
-    const lw2 = levelRegs[i * LEVEL_STEP + 1];
-    const rawLevel = combineWordsToFloat32(lw1, lw2);
-    const level_pct = parseFloat(Math.min(Math.max(rawLevel, 0), 100).toFixed(1));
+    const rawLevel = levelRegs[i * LEVEL_STEP];
+    const level_pct = Math.min(Math.max(rawLevel ?? 0, 0), 100);
     const heightM = Number(tank.height) || 0;
     const level_mm = heightM > 0
       ? parseFloat(((level_pct / 100) * heightM * 1000).toFixed(1))
