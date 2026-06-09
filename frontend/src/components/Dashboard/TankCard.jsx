@@ -136,8 +136,14 @@ export default function TankCard({ tank, dense = false }) {
         >
           <Typography
             fontWeight="bold"
-            color={color}
-            sx={{ fontSize: 'clamp(1rem, 22cqmin, 3rem)', lineHeight: 1 }}
+            sx={{
+              // Бяло с тъмен контур — четливо върху всеки цвят на водата (жълто, черно и т.н.)
+              color: '#fff',
+              textShadow:
+                '0 0 3px rgba(0,0,0,0.9), 0 1px 2px rgba(0,0,0,0.9), 0 0 1px rgba(0,0,0,0.9)',
+              fontSize: 'clamp(1rem, 22cqmin, 3rem)',
+              lineHeight: 1,
+            }}
           >
             {tank.level_pct?.toFixed(1)}%
           </Typography>
