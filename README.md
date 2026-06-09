@@ -93,6 +93,32 @@ To check / control it afterwards:
 
 ---
 
+## Keep the PC awake (required for 24/7 logging)
+
+Locking the screen or turning off the monitor is fine — the app keeps collecting.
+But if the PC actually **sleeps**, all processes freeze and **no data is recorded**
+until it wakes (leaving a gap). So the machine must be set to **never sleep**.
+
+**Windows:**
+1. **Settings → System → Power & sleep → Sleep → "Never"** (when plugged in).
+   (The screen may still turn off on a timer — that does not sleep the system.)
+2. **Control Panel → Power Options → "High performance"** plan.
+3. **Disable USB selective suspend** (so the USB-serial adapter isn't powered down):
+   Power Options → Change plan settings → Change advanced power settings →
+   **USB settings → USB selective suspend → Disabled**.
+4. **Device Manager →** your USB-serial (or Ethernet) adapter **→ Properties →
+   Power Management →** uncheck **"Allow the computer to turn off this device to save power"**.
+5. Laptop only: **Settings → Power → "When I close the lid (plugged in) → Do nothing"**.
+
+**Linux:**
+```bash
+sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+```
+
+> Screen lock = OK (keeps running). Sleep = stops logging. Make sure Sleep is "Never".
+
+---
+
 ## Troubleshooting
 
 - **Browser shows nothing** → make sure `npm start` is still running; open `http://localhost:4000`.
