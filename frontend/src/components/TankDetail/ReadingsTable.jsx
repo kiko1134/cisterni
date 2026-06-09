@@ -2,15 +2,13 @@ import { useState, useMemo } from 'react';
 import {
   Box, Paper, Typography, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, TablePagination,
-  Chip, TextField, InputAdornment, IconButton, Tooltip,
+  TextField, InputAdornment, IconButton, Tooltip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import {
   formatDateTime,
   formatLevel,
-  formatLevelMm,
   formatTemp,
   formatMass,
 } from '../../utils/formatters';
@@ -21,20 +19,30 @@ const ROWS_PER_PAGE_OPTIONS = [25, 50, 100];
 const COLUMNS = [
   { id: 'time', labelKey: 'col_datetime', minWidth: 170 },
   { id: 'level_pct', labelKey: 'col_level_pct', minWidth: 100, align: 'right' },
-  { id: 'level_mm', labelKey: 'col_level_mm', minWidth: 110, align: 'right' },
-  { id: 'temperature', labelKey: 'col_temp', minWidth: 120, align: 'right' },
-  { id: 'mass', labelKey: 'col_mass', minWidth: 120, align: 'right' },
-  { id: 'alarms', labelKey: 'col_alarms', minWidth: 130, align: 'center' },
+  { id: 'temperature', labelKey: 'col_temp', minWidth: 110, align: 'right' },
+  { id: 'mass', labelKey: 'col_mass', minWidth: 110, align: 'right' },
+  { id: 'overheat', labelKey: 'col_overheat', minWidth: 90, align: 'center' },
+  { id: 'max_alarm', labelKey: 'chip_max_level', minWidth: 90, align: 'center' },
+  { id: 'min_alarm', labelKey: 'chip_min_level', minWidth: 90, align: 'center' },
 ];
+
+// ✓ когато няма аларма (0), ✕ когато има аларма (1).
+function AlarmMark({ on }) {
+  return on ? (
+    <Typography component="span" color="error.main" fontWeight="bold">✕</Typography>
+  ) : (
+    <Typography component="span" color="success.main" fontWeight="bold">✓</Typography>
+  );
+}
 
 // Конвертиране в CSV и изтегляне
 function exportToCsv(rows, t) {
   const header = [
     t('col_datetime'),
     t('metric_level'),
-    t('col_level_mm'),
     t('metric_temp'),
     t('metric_mass'),
+    t('col_overheat'),
     t('csv_alarm_max'),
     t('csv_alarm_min'),
   ].join(',');
@@ -44,9 +52,9 @@ function exportToCsv(rows, t) {
     [
       r.time,
       r.level_pct?.toFixed(2),
-      r.level_mm?.toFixed(1),
       r.temperature?.toFixed(2),
       r.mass?.toFixed(1),
+      r.overheat_alarm ? yes : no,
       r.max_level_alarm ? yes : no,
       r.min_level_alarm ? yes : no,
     ].join(',')
@@ -167,19 +175,19 @@ export default function ReadingsTable({ data = [], isLoading }) {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 6, color: 'text.secondary' }}>
+                <TableCell colSpan={7} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                   {t('loading')}
                 </TableCell>
               </TableRow>
             ) : visibleRows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center" sx={{ py: 6, color: 'text.secondary' }}>
+                <TableCell colSpan={7} align="center" sx={{ py: 6, color: 'text.secondary' }}>
                   {t('no_data_period')}
                 </TableCell>
               </TableRow>
             ) : (
               visibleRows.map((row, idx) => {
-                const hasAlarm = row.max_level_alarm || row.min_level_alarm;
+                const hasAlarm = row.max_level_alarm || row.min_level_alarm || row.overheat_alarm;
                 return (
                   <TableRow
                     key={`${row.time}-${idx}`}
@@ -223,11 +231,6 @@ export default function ReadingsTable({ data = [], isLoading }) {
                       </Box>
                     </TableCell>
 
-                    {/* Ниво mm */}
-                    <TableCell align="right">
-                      <Typography variant="body2">{formatLevelMm(row.level_mm)}</Typography>
-                    </TableCell>
-
                     {/* Температура */}
                     <TableCell align="right">
                       <Typography
@@ -244,44 +247,12 @@ export default function ReadingsTable({ data = [], isLoading }) {
                       <Typography variant="body2">{formatMass(row.mass)}</Typography>
                     </TableCell>
 
-                    {/* Аларми */}
-                    <TableCell align="center">
-                      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', flexWrap: 'wrap' }}>
-                        {row.max_level_alarm && (
-                          <Chip
-                            icon={<WarningAmberIcon />}
-                            label={t('chip_max_level')}
-                            size="small"
-                            color="error"
-                            variant="outlined"
-                            sx={{ height: 20, fontSize: 10 }}
-                          />
-                        )}
-                        {row.min_level_alarm && (
-                          <Chip
-                            icon={<WarningAmberIcon />}
-                            label={t('chip_min_level')}
-                            size="small"
-                            color="warning"
-                            variant="outlined"
-                            sx={{ height: 20, fontSize: 10 }}
-                          />
-                        )}
-                        {row.temperature >= 50 && (
-                          <Chip
-                            icon={<WarningAmberIcon />}
-                            label={t('chip_high_temp')}
-                            size="small"
-                            color="warning"
-                            variant="outlined"
-                            sx={{ height: 20, fontSize: 10 }}
-                          />
-                        )}
-                        {!row.max_level_alarm && !row.min_level_alarm && row.temperature < 50 && (
-                          <Typography variant="caption" color="success.main">✓</Typography>
-                        )}
-                      </Box>
-                    </TableCell>
+                    {/* Аларма прегряване */}
+                    <TableCell align="center"><AlarmMark on={!!row.overheat_alarm} /></TableCell>
+                    {/* Аларма макс ниво */}
+                    <TableCell align="center"><AlarmMark on={!!row.max_level_alarm} /></TableCell>
+                    {/* Аларма мин ниво */}
+                    <TableCell align="center"><AlarmMark on={!!row.min_level_alarm} /></TableCell>
                   </TableRow>
                 );
               })

@@ -72,6 +72,7 @@ export const translations = {
   col_temp:         { bg: 'Температура', en: 'Temperature', ru: 'Температура' },
   col_mass:         { bg: 'Маса',        en: 'Mass',        ru: 'Масса' },
   col_alarms:       { bg: 'Аларми',      en: 'Alarms',      ru: 'Тревоги' },
+  col_overheat:     { bg: 'Прегряване',  en: 'Overheat',    ru: 'Перегрев' },
   history_title:    { bg: 'Исторически данни', en: 'Historical data', ru: 'Исторические данные' },
   records:          { bg: 'записа',      en: 'records',     ru: 'записей' },
   search_by_date:   { bg: 'Търси по дата...', en: 'Search by date...', ru: 'Поиск по дате...' },

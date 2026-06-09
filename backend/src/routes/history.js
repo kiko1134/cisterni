@@ -21,7 +21,7 @@ router.get('/:id/history', async (req, res) => {
       // До 24ч → всички записи
       query = `
         SELECT time, tank_id, level_mm, level_pct, temperature, mass,
-               max_level_alarm, min_level_alarm
+               max_level_alarm, min_level_alarm, overheat_alarm
         FROM measurements
         WHERE tank_id = $1 AND time BETWEEN $2 AND $3
         ORDER BY time ASC
@@ -39,7 +39,8 @@ router.get('/:id/history', async (req, res) => {
           AVG(temperature)::DOUBLE PRECISION AS temperature,
           AVG(mass)::DOUBLE PRECISION        AS mass,
           BOOL_OR(max_level_alarm)           AS max_level_alarm,
-          BOOL_OR(min_level_alarm)           AS min_level_alarm
+          BOOL_OR(min_level_alarm)           AS min_level_alarm,
+          BOOL_OR(overheat_alarm)            AS overheat_alarm
         FROM measurements
         WHERE tank_id = $1 AND time BETWEEN $2 AND $3
         GROUP BY 1, 2
@@ -58,7 +59,8 @@ router.get('/:id/history', async (req, res) => {
           AVG(temperature)::DOUBLE PRECISION AS temperature,
           AVG(mass)::DOUBLE PRECISION        AS mass,
           BOOL_OR(max_level_alarm)           AS max_level_alarm,
-          BOOL_OR(min_level_alarm)           AS min_level_alarm
+          BOOL_OR(min_level_alarm)           AS min_level_alarm,
+          BOOL_OR(overheat_alarm)            AS overheat_alarm
         FROM measurements
         WHERE tank_id = $1 AND time BETWEEN $2 AND $3
         GROUP BY 1, 2
