@@ -17,7 +17,9 @@ router.get('/current', async (req, res) => {
         m.temperature,
         m.mass,
         m.max_level_alarm,
-        m.min_level_alarm
+        m.min_level_alarm,
+        t.entered_material,
+        t.used_material
       FROM measurements m
       JOIN tanks t ON t.id = m.tank_id
       ORDER BY m.tank_id, m.time DESC

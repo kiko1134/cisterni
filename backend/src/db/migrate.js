@@ -64,6 +64,10 @@ async function runMigration() {
       tankParams
     );
 
+    // Кумулативни количества (kg): постъпил и изразходван материал за всеки резервоар.
+    await client.query(`ALTER TABLE tanks ADD COLUMN IF NOT EXISTS entered_material DOUBLE PRECISION NOT NULL DEFAULT 0;`);
+    await client.query(`ALTER TABLE tanks ADD COLUMN IF NOT EXISTS used_material DOUBLE PRECISION NOT NULL DEFAULT 0;`);
+
     // Измервания
     await client.query(`
       CREATE TABLE IF NOT EXISTS measurements (

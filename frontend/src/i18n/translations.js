@@ -49,6 +49,8 @@ export const translations = {
   detail_temp:      { bg: 'Температура', en: 'Temperature', ru: 'Температура' },
   detail_mass:      { bg: 'Маса',        en: 'Mass',        ru: 'Масса' },
   detail_level_mm:  { bg: 'Ниво (mm)',   en: 'Level (mm)',  ru: 'Уровень (мм)' },
+  detail_entered:   { bg: 'Постъпил материал', en: 'Incoming material', ru: 'Поступивший материал' },
+  detail_used:      { bg: 'Изразходван материал', en: 'Used material', ru: 'Израсходованный материал' },
 
   // ── Статистика / Statistics ───────────────────────────────────────────────
   stats_title:      { bg: 'Статистика',  en: 'Statistics',  ru: 'Статистика' },

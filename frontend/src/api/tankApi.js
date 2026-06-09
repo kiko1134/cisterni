@@ -11,8 +11,14 @@ const api = axios.create({
 
 // Бекендът съхранява масата в kg. UI-то я показва в тонове → делим на 1000.
 const KG_PER_TON = 1000;
-const massToTons = (row) =>
-  row && row.mass != null ? { ...row, mass: Number(row.mass) / KG_PER_TON } : row;
+const massToTons = (row) => {
+  if (!row) return row;
+  const out = { ...row };
+  if (out.mass != null) out.mass = Number(out.mass) / KG_PER_TON;
+  if (out.entered_material != null) out.entered_material = Number(out.entered_material) / KG_PER_TON;
+  if (out.used_material != null) out.used_material = Number(out.used_material) / KG_PER_TON;
+  return out;
+};
 const massListToTons = (rows) => (Array.isArray(rows) ? rows.map(massToTons) : rows);
 
 export const fetchTanksCurrent = () =>

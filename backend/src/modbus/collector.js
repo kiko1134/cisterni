@@ -129,8 +129,33 @@ async function saveReadings(readings) {
   );
 }
 
+// Последната записана маса за всеки резервоар (от предишния цикъл).
+async function getPreviousMass() {
+  const { rows } = await pool.query(
+    'SELECT DISTINCT ON (tank_id) tank_id, mass FROM measurements ORDER BY tank_id, time DESC'
+  );
+  const map = new Map();
+  rows.forEach((r) => map.set(r.tank_id, Number(r.mass)));
+  return map;
+}
+
+// Натрупва постъпил/изразходван материал спрямо промяната на масата (kg).
+async function accumulateMaterial(readings, prevMass) {
+  for (const r of readings) {
+    const prev = prevMass.get(r.tank_id);
+    if (prev === undefined || r.mass == null) continue; // няма база за сравнение
+    const diff = r.mass - prev;
+    if (diff > 0) {
+      await pool.query('UPDATE tanks SET entered_material = entered_material + $2 WHERE id = $1', [r.tank_id, diff]);
+    } else if (diff < 0) {
+      await pool.query('UPDATE tanks SET used_material = used_material + $2 WHERE id = $1', [r.tank_id, -diff]);
+    }
+  }
+}
+
 async function collectOnce() {
   const tanks = await getTankSettings();
+  const prevMass = await getPreviousMass();
   const now = new Date();
 
   if (tanks.length < NUM_TANKS) {
@@ -218,6 +243,7 @@ async function collectOnce() {
   });
 
   await saveReadings(readings);
+  await accumulateMaterial(readings, prevMass);
   console.log(`[${now.toISOString()}] ✅ Записани ${readings.length} измервания от PLC`);
 
   return readings;

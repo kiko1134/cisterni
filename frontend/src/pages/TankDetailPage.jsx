@@ -79,6 +79,18 @@ export default function TankDetailPage() {
               {current.level_mm?.toFixed(0)} mm
             </Typography>
           </Box>
+          <Box>
+            <Typography variant="caption" color="text.secondary">{t('detail_entered')}</Typography>
+            <Typography variant="h6" color="#4caf50" fontWeight="bold">
+              {formatMass(current.entered_material)}
+            </Typography>
+          </Box>
+          <Box>
+            <Typography variant="caption" color="text.secondary">{t('detail_used')}</Typography>
+            <Typography variant="h6" color="#f44336" fontWeight="bold">
+              {formatMass(current.used_material)}
+            </Typography>
+          </Box>
         </Paper>
       )}
 
