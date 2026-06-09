@@ -96,6 +96,7 @@ export default function PeriodSelector({ period, from, to, onChange }) {
               value={customFrom}
               onChange={(e) => setCustomFrom(e.target.value)}
               InputLabelProps={{ shrink: true }}
+              sx={{ '& input::-webkit-calendar-picker-indicator': { filter: 'invert(1)' } }}
             />
             <TextField
               label={t('to')}
@@ -106,6 +107,7 @@ export default function PeriodSelector({ period, from, to, onChange }) {
               InputLabelProps={{ shrink: true }}
               error={invalidRange}
               helperText={invalidRange ? t('invalid_period') : ' '}
+              sx={{ '& input::-webkit-calendar-picker-indicator': { filter: 'invert(1)' } }}
             />
             <Button variant="contained" size="small" onClick={applyCustom} disabled={invalidRange}>
               {t('show')}
