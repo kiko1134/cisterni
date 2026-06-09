@@ -48,3 +48,9 @@ export const fetchTankSettings = (id) =>
 
 export const updateTankSettings = (id, data) =>
   USE_MOCK ? mockApi.updateTankSettings(id, data) : api.put(`/tanks/${id}/settings`, data).then((r) => r.data);
+
+// Записва само максималната температура (другите параметри не се променят).
+export const updateTankLimitTemp = (id, limit_temp) =>
+  USE_MOCK
+    ? mockApi.updateTankSettings(id, { limit_temp })
+    : api.put(`/tanks/${id}/limit-temp`, { limit_temp }).then((r) => r.data);

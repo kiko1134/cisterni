@@ -46,4 +46,24 @@ router.put('/:id/settings', async (req, res) => {
   }
 });
 
+// Само максималната температура може да се променя от страница "Настройки".
+router.put('/:id/limit-temp', async (req, res) => {
+  const { id } = req.params;
+  const limit = parseFloat(req.body.limit_temp);
+  if (Number.isNaN(limit)) {
+    return res.status(400).json({ error: 'limit_temp е задължителен' });
+  }
+  try {
+    const { rows } = await pool.query(
+      'UPDATE tanks SET limit_temp = $2 WHERE id = $1 RETURNING *',
+      [id, limit]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Не е намерен' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('PUT /tanks/:id/limit-temp:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 module.exports = router;

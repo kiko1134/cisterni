@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import toast from 'react-hot-toast';
-import { fetchTankSettings, updateTankSettings } from '../api/tankApi';
+import { fetchTankSettings, updateTankLimitTemp } from '../api/tankApi';
 import { useT } from '../i18n/LanguageContext';
 
 const DEFAULT_FORM = {
@@ -53,9 +53,9 @@ export default function SettingsPage() {
     }
   }, [settings]);
 
-  // Мутация за запис
+  // Мутация за запис — само максималната температура
   const { mutate: saveSettings, isPending } = useMutation({
-    mutationFn: (data) => updateTankSettings(selectedTank, data),
+    mutationFn: (limitTemp) => updateTankLimitTemp(selectedTank, limitTemp),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tank', selectedTank, 'settings'] });
       toast.success(t('settings_saved', { n: selectedTank }));
@@ -71,20 +71,8 @@ export default function SettingsPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Конвертиране на стрингове към числа
-    const payload = {
-      ...form,
-      diameter: parseFloat(form.diameter),
-      height: parseFloat(form.height),
-      rel_weight: parseFloat(form.rel_weight),
-      correction: parseFloat(form.correction),
-      dead_volume: parseFloat(form.dead_volume),
-      limit_temp: parseFloat(form.limit_temp),
-      filter: parseFloat(form.filter),
-      sens_plus: parseFloat(form.sens_plus),
-      sens_minus: parseFloat(form.sens_minus),
-    };
-    saveSettings(payload);
+    // Записва се само максималната температура
+    saveSettings(parseFloat(form.limit_temp));
   };
 
   return (
@@ -124,100 +112,26 @@ export default function SettingsPage() {
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
                     fullWidth
-                    label={t('field_name')}
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    size="small"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <TextField
-                    fullWidth
-                    required
                     label={t('field_diameter')}
                     name="diameter"
                     type="number"
                     value={form.diameter}
-                    onChange={handleChange}
                     size="small"
                     inputProps={{ step: '0.01', min: 0 }}
+                    InputProps={{ readOnly: true }}
                     helperText={t('field_diameter_help')}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <TextField
                     fullWidth
-                    required
                     label={t('field_height')}
                     name="height"
                     type="number"
                     value={form.height}
-                    onChange={handleChange}
                     size="small"
                     inputProps={{ step: '0.01', min: 0 }}
-                  />
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-
-          {/* Физически параметри */}
-          <Grid item xs={12}>
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
-                {t('section_physical')}
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    required
-                    label={t('field_rel_weight')}
-                    name="rel_weight"
-                    type="number"
-                    value={form.rel_weight}
-                    onChange={handleChange}
-                    size="small"
-                    inputProps={{ step: '0.1', min: 0 }}
-                    helperText={t('field_rel_weight_help')}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    label={t('field_correction')}
-                    name="correction"
-                    type="number"
-                    value={form.correction}
-                    onChange={handleChange}
-                    size="small"
-                    inputProps={{ step: '0.001', min: 0 }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    label={t('field_dead_volume')}
-                    name="dead_volume"
-                    type="number"
-                    value={form.dead_volume}
-                    onChange={handleChange}
-                    size="small"
-                    inputProps={{ step: '0.01', min: 0 }}
-                    helperText={t('field_dead_volume_help')}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    label={t('field_filter')}
-                    name="filter"
-                    type="number"
-                    value={form.filter}
-                    onChange={handleChange}
-                    size="small"
-                    inputProps={{ step: '0.1', min: 0.1 }}
+                    InputProps={{ readOnly: true }}
                   />
                 </Grid>
               </Grid>
@@ -244,53 +158,7 @@ export default function SettingsPage() {
                     helperText={t('field_limit_temp_help')}
                   />
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    fullWidth
-                    label={t('field_sens_plus')}
-                    name="sens_plus"
-                    type="number"
-                    value={form.sens_plus}
-                    onChange={handleChange}
-                    size="small"
-                    inputProps={{ step: '0.1' }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    fullWidth
-                    label={t('field_sens_minus')}
-                    name="sens_minus"
-                    type="number"
-                    value={form.sens_minus}
-                    onChange={handleChange}
-                    size="small"
-                    inputProps={{ step: '0.1' }}
-                  />
-                </Grid>
               </Grid>
-            </Paper>
-          </Grid>
-
-          {/* Формула - само информативно */}
-          <Grid item xs={12}>
-            <Paper sx={{ p: 3, bgcolor: 'background.default' }}>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                {t('formula_label')}
-              </Typography>
-              <Typography variant="body2" fontFamily="monospace" color="primary">
-                M = ρ × (π × D² / 4) × (h_measured + h_dead) × Correction
-              </Typography>
-              {form.diameter && form.height && form.rel_weight && (
-                <>
-                  <Divider sx={{ my: 1.5 }} />
-                  <Typography variant="caption" color="text.secondary">
-                    {t('max_volume')}: {((Math.PI * Math.pow(parseFloat(form.diameter), 2) / 4) * parseFloat(form.height)).toFixed(2)} m³
-                    {' '}|{' '}
-                    {t('max_mass')}: {((Math.PI * Math.pow(parseFloat(form.diameter), 2) / 4) * parseFloat(form.height) * parseFloat(form.rel_weight)).toFixed(0)} kg
-                  </Typography>
-                </>
-              )}
             </Paper>
           </Grid>
 
