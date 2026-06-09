@@ -27,9 +27,8 @@ export default function TankCard({ tank, dense = false }) {
   const color = ALARM_COLORS[status];
   const level = Math.min(Math.max(tank.level_pct ?? 0, 0), 100);
 
-  // Цвят на течността според резервоара; повърхността е малко по-светла.
+  // Цвят на течността според резервоара — един плътен цвят (тяло + вълна).
   const waterColor = getTankWaterColor(tank.id);
-  const waterSurface = `color-mix(in srgb, ${waterColor}, white 35%)`;
 
   return (
     <Paper
@@ -86,7 +85,7 @@ export default function TankCard({ tank, dense = false }) {
               left: 0,
               right: 0,
               height: `${level}%`,
-              background: `linear-gradient(to bottom, ${waterSurface} 0%, ${waterColor} 100%)`,
+              background: waterColor,
               transition: 'height 0.8s ease-in-out',
             }}
           >
@@ -117,7 +116,7 @@ export default function TankCard({ tank, dense = false }) {
                 >
                   <path
                     d="M0,20 C150,40 350,0 600,20 C850,40 1050,0 1200,20 C1350,40 1550,0 1800,20 C2050,40 2250,0 2400,20 L2400,40 L0,40 Z"
-                    fill={waterSurface}
+                    fill={waterColor}
                   />
                 </Box>
               </Box>
