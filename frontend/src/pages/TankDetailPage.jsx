@@ -39,7 +39,7 @@ export default function TankDetailPage() {
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h5" fontWeight="bold">
-          {current?.name || `${t('tank')} #${id}`}
+          {`${t('tank')} #${id}`}
         </Typography>
       </Box>
 
