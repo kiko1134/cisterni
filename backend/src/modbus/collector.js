@@ -142,8 +142,21 @@ async function getPreviousMass() {
 // Натрупва постъпил/изразходван материал спрямо промяната на масата (kg).
 async function accumulateMaterial(readings, prevMass) {
   for (const r of readings) {
+    if (r.mass == null) continue;
     const prev = prevMass.get(r.tank_id);
-    if (prev === undefined || r.mass == null) continue; // няма база за сравнение
+
+    // Първо измерване за този резервоар (празна история — напр. след reset).
+    // Наличното количество се води като начално "постъпило", за да е
+    // балансирана сметката: наличност = постъпило − изразходвано.
+    // Иначе стартовият tonnage никога не се отчита и "изразходвано" винаги
+    // изглежда много по-голямо от "постъпило".
+    if (prev === undefined) {
+      if (r.mass > 0) {
+        await pool.query('UPDATE tanks SET entered_material = entered_material + $2 WHERE id = $1', [r.tank_id, r.mass]);
+      }
+      continue;
+    }
+
     const diff = r.mass - prev;
     if (diff > 0) {
       await pool.query('UPDATE tanks SET entered_material = entered_material + $2 WHERE id = $1', [r.tank_id, diff]);
