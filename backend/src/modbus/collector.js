@@ -215,7 +215,9 @@ async function collectOnce() {
     // Ниво — директно от PLC: 16-битова дума 0..100, без изчисление от масата.
     const levelPlcReg = REG_LEVEL_BASE + i * LEVEL_STEP;
     const rawLevel = levelRegs[i * LEVEL_STEP];
-    const level_pct = Math.min(Math.max(rawLevel ?? 0, 0), 100);
+    // ⚠ ТЕСТОВО: форсира нивото на 100% за проверка на визуализацията.
+    //    Махни този ред (или върни този комит), за да четеш реалното ниво от PLC.
+    const level_pct = 100;
     const heightM = Number(tank.height) || 0;
     const level_mm = heightM > 0
       ? parseFloat(((level_pct / 100) * heightM * 1000).toFixed(1))
