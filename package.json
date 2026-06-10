@@ -9,7 +9,9 @@
   "scripts": {
     "setup": "npm --prefix backend ci && npm --prefix frontend ci && npm --prefix frontend run build && node scripts/setup-wizard.mjs",
     "configure": "node scripts/setup-wizard.mjs",
-    "start": "npm --prefix backend start",
+    "update": "git pull && npm --prefix backend install && npm --prefix frontend install && npm --prefix frontend run build && npm --prefix backend start",
+    "start": "npm --prefix frontend run build && npm --prefix backend start",
+    "start:fast": "npm --prefix backend start",
     "build": "npm --prefix frontend run build",
     "migrate": "npm --prefix backend run migrate",
     "seed:tanks": "npm --prefix backend run seed:tanks"
