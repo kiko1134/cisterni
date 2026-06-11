@@ -61,9 +61,7 @@ export default function TankCard({ tank, dense = false }) {
         noWrap
         sx={{ fontWeight: 700, lineHeight: 1.2, fontSize: 'clamp(0.7rem, 9cqmin, 1.25rem)' }}
       >
-        {/* При малките (dense) карти показваме само номера, за да не се отрязва
-            ("Резервоа...") при по-малък мащаб/резолюция. */}
-        {dense ? `№${tank.id}` : `${t('tank')} ${tank.id}`}
+        {`${t('tank')} ${tank.id}`}
       </Typography>
 
       {/* Визуализация на нивото — заема останалото пространство */}
