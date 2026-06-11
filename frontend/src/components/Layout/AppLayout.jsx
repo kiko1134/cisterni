@@ -169,8 +169,14 @@ export default function AppLayout() {
         component="main"
         sx={{
           flexGrow: 1,
+          minWidth: 0,            // позволява на flex-елемента да се свива, без да прелива
           p: 3,
           minHeight: '100vh',
+          position: 'relative',
+          isolation: 'isolate',   // собствен stacking context → съдържанието не се
+                                  // изрисува върху страничното меню (sidebar)
+          overflowX: 'clip',      // отрязва хоризонталното "призрачно" изрисуване —
+                                  // Chrome compositor артефакт при мащаб 125% и т.н.
           bgcolor: 'background.default',
           transition: theme.transitions.create('margin', {
             easing: theme.transitions.easing.sharp,
