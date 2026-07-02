@@ -55,10 +55,10 @@ export const translations = {
   // ── Статистика / Statistics ───────────────────────────────────────────────
   stats_title:      { bg: 'Статистика',  en: 'Statistics',  ru: 'Статистика' },
   kpi_incoming:     { bg: 'Постъпила суровина', en: 'Incoming material', ru: 'Поступившее сырьё' },
-  kpi_outgoing:     { bg: 'Изпратена за преработка', en: 'Sent for processing', ru: 'Отправлено на переработку' },
+  kpi_outgoing:     { bg: 'Изпомпено от резервоара', en: 'Pumped from the tank', ru: 'Откачивается из резервуара' },
   kpi_remainder:    { bg: 'Реализация (остатък)', en: 'Realization (remainder)', ru: 'Реализация (остаток)' },
   chart_incoming_by_tank: { bg: 'Постъпила суровина по резервоар [t]', en: 'Incoming material by tank [t]', ru: 'Поступившее сырьё по резервуарам [т]' },
-  chart_outgoing_by_tank: { bg: 'Изпратена за преработка по резервоар [t]', en: 'Sent for processing by tank [t]', ru: 'Отправлено на переработку по резервуарам [т]' },
+  chart_outgoing_by_tank: { bg: 'Изпомпано количество по резервоар [t]', en: 'Pumped quantity per tank [t]', ru: 'Kоличество перекачиваемого вещества на резервуар [т]' },
   chart_compare_fill: { bg: 'Сравнение — текущо запълване [%]', en: 'Comparison — current fill [%]', ru: 'Сравнение — текущее заполнение [%]' },
   stats_error:      { bg: 'Грешка при зареждане на статистиката!', en: 'Error loading statistics!', ru: 'Ошибка загрузки статистики!' },
   legend_avg_level: { bg: 'Средно ниво %', en: 'Average level %', ru: 'Средний уровень %' },

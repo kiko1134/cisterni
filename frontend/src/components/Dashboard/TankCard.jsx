@@ -154,20 +154,20 @@ export default function TankCard({ tank, dense = false }) {
       {dense ? (
         /* Компактен изглед за малки резервоари — текст с икони, без chip рамки */
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, mt: 0.25 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <ThermostatIcon
-              sx={{ fontSize: 'clamp(12px, 8cqmin, 18px)', color: status === 'highTemp' ? 'warning.main' : 'text.secondary' }}
+              sx={{ fontSize: 'clamp(16px, 11.5cqmin, 28px)', color: status === 'highTemp' ? 'warning.main' : 'text.secondary' }}
             />
             <Typography
-              sx={{ fontSize: 'clamp(0.6rem, 7cqmin, 0.95rem)', fontWeight: 700, lineHeight: 1 }}
+              sx={{ fontSize: 'clamp(0.85rem, 10.5cqmin, 1.5rem)', fontWeight: 600, lineHeight: 1 }}
               color={status === 'highTemp' ? 'warning.main' : 'text.primary'}
             >
               {tank.temperature?.toFixed(1)} °C
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <ScaleIcon sx={{ fontSize: 'clamp(12px, 8cqmin, 18px)', color: 'text.secondary' }} />
-            <Typography sx={{ fontSize: 'clamp(0.6rem, 7cqmin, 0.95rem)', fontWeight: 700, lineHeight: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <ScaleIcon sx={{ fontSize: 'clamp(16px, 11.5cqmin, 28px)', color: 'text.secondary' }} />
+            <Typography sx={{ fontSize: 'clamp(0.85rem, 10.5cqmin, 1.5rem)', fontWeight: 600, lineHeight: 1 }}>
               {tank.mass?.toFixed(1)} t
             </Typography>
           </Box>
@@ -180,10 +180,11 @@ export default function TankCard({ tank, dense = false }) {
             color={status === 'highTemp' ? 'warning' : 'default'}
             variant="outlined"
             sx={{
-              fontSize: 'clamp(0.6rem, 6.5cqmin, 1rem)',
+              fontSize: 'clamp(0.85rem, 10cqmin, 1.55rem)',
+              fontWeight: 600,
               height: 'auto',
               '& .MuiChip-label': { px: 0.75, py: 0.25 },
-              '& .MuiChip-icon': { fontSize: 'clamp(12px, 8cqmin, 20px)' },
+              '& .MuiChip-icon': { fontSize: 'clamp(16px, 11.5cqmin, 30px)', mr: 0.75 },
             }}
           />
           <Chip
@@ -191,10 +192,11 @@ export default function TankCard({ tank, dense = false }) {
             label={`${tank.mass?.toFixed(1)} t`}
             variant="outlined"
             sx={{
-              fontSize: 'clamp(0.6rem, 6.5cqmin, 1rem)',
+              fontSize: 'clamp(0.85rem, 10cqmin, 1.55rem)',
+              fontWeight: 600,
               height: 'auto',
               '& .MuiChip-label': { px: 0.75, py: 0.25 },
-              '& .MuiChip-icon': { fontSize: 'clamp(12px, 8cqmin, 20px)' },
+              '& .MuiChip-icon': { fontSize: 'clamp(16px, 11.5cqmin, 30px)', mr: 0.75 },
             }}
           />
         </Box>
