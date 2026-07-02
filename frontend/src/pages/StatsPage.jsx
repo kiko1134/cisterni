@@ -29,6 +29,12 @@ export default function StatsPage() {
 
   const { data: stats, isLoading, isError } = useTankStats(range.from, range.to);
 
+  // Преведено име на резервоара за оси и tooltip (напр. „Резервоар 1“).
+  const chartData = stats?.map((s) => ({
+    ...s,
+    tank_label: `${s.tank_id}`,
+  }));
+
   // Обобщени KPI данни
   const totalIn = stats?.reduce((sum, t) => sum + (t.total_in ?? 0), 0) ?? 0;
   const totalOut = stats?.reduce((sum, t) => sum + (t.total_out ?? 0), 0) ?? 0;
@@ -103,14 +109,15 @@ export default function StatsPage() {
                 {t('chart_incoming_by_tank')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={stats} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_name" fontSize={11} stroke="#999" />
-                  <YAxis stroke="#999" fontSize={11} />
+                  <XAxis dataKey="tank_label" fontSize={20} stroke="#999" />
+                  <YAxis stroke="#999" fontSize={20} width={72} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
                     labelStyle={{ color: '#fff' }}
                     itemStyle={{ color: '#fff' }}
+                    labelFormatter={() => ''}
                     formatter={(v) => [`${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_in" name={t('bar_incoming')} radius={[4, 4, 0, 0]}>
@@ -128,14 +135,15 @@ export default function StatsPage() {
                 {t('chart_outgoing_by_tank')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={stats} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_name" fontSize={11} stroke="#999" />
-                  <YAxis stroke="#999" fontSize={11} />
+                  <XAxis dataKey="tank_label" fontSize={20} stroke="#999" />
+                  <YAxis stroke="#999" fontSize={20} width={72} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
                     labelStyle={{ color: '#fff' }}
                     itemStyle={{ color: '#fff' }}
+                    labelFormatter={() => ''}
                     formatter={(v) => [`${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_out" name={t('bar_outgoing')} radius={[4, 4, 0, 0]}>
@@ -153,10 +161,10 @@ export default function StatsPage() {
                 {t('chart_compare_fill')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={stats} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_name" fontSize={11} stroke="#999" />
-                  <YAxis domain={[0, 100]} unit="%" stroke="#999" fontSize={11} />
+                  <XAxis dataKey="tank_label" fontSize={16} stroke="#999" />
+                  <YAxis domain={[0, 100]} unit="%" stroke="#999" fontSize={20} width={72} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
                     labelStyle={{ color: '#fff' }}
