@@ -14,9 +14,9 @@ import { format } from 'date-fns';
 import { useT } from '../../i18n/LanguageContext';
 
 const METRICS = [
-  { key: 'level_pct', labelKey: 'metric_level', color: '#2196f3', unit: '%' },
-  { key: 'temperature', labelKey: 'metric_temp', color: '#ff9800', unit: '°C' },
-  { key: 'mass', labelKey: 'metric_mass', color: '#4caf50', unit: 't' },
+  { key: 'level_pct', labelKey: 'metric_level', color: '#2196f3', unit: '%', type: 'monotone' },
+  { key: 'temperature', labelKey: 'metric_temp', color: '#ff9800', unit: '°C', type: 'monotone' },
+  { key: 'mass', labelKey: 'metric_mass', color: '#4caf50', unit: 't', type: 'stepAfter' },
 ];
 
 export default function TrendChart({ data, isLoading }) {
@@ -34,6 +34,16 @@ export default function TrendChart({ data, isLoading }) {
     ...reading,
     time: new Date(reading.time).getTime(),
   })) || [];
+
+  const massValues = chartData
+    .map((d) => d.mass)
+    .filter((v) => v != null && !Number.isNaN(v));
+  const massMin = massValues.length ? Math.min(...massValues) : 0;
+  const massMax = massValues.length ? Math.max(...massValues) : 0;
+  const massPad = Math.max((massMax - massMin) * 0.1, 0.5);
+  const massDomain = massValues.length
+    ? [Math.floor(massMin - massPad), Math.ceil(massMax + massPad)]
+    : [0, 'auto'];
 
   // Форматиране на оста X спрямо обхвата
   const formatXAxis = (timestamp) => {
@@ -72,7 +82,7 @@ export default function TrendChart({ data, isLoading }) {
       </Box>
 
       {/* Графика */}
-      <Box sx={{ width: '100%', height: 400 }}>
+      <Box sx={{ width: '100%', height: 600 }}>
         {isLoading ? (
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
             <Typography color="text.secondary">{t('loading')}</Typography>
@@ -113,6 +123,8 @@ export default function TrendChart({ data, isLoading }) {
                 <YAxis
                   yAxisId="mass"
                   orientation={activeMetrics.includes('temperature') ? 'left' : 'right'}
+                  domain={massDomain}
+                  allowDecimals={false}
                   unit=" t"
                   stroke="#4caf50"
                   fontSize={12}
@@ -134,7 +146,7 @@ export default function TrendChart({ data, isLoading }) {
                     m.key === 'level_pct' ? 'level' :
                     m.key === 'temperature' ? 'temp' : 'mass'
                   }
-                  type="monotone"
+                  type={m.type}
                   dataKey={m.key}
                   name={t(m.labelKey)}
                   stroke={m.color}

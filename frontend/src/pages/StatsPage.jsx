@@ -10,14 +10,7 @@ import { subDays } from 'date-fns';
 import PeriodSelector from '../components/TankDetail/PeriodSelector';
 import useTankStats from '../hooks/useTankStats';
 import { useT } from '../i18n/LanguageContext';
-
-// 16 различни цвята за резервоарите
-const TANK_COLORS = [
-  '#2196f3','#4caf50','#ff9800','#e91e63',
-  '#9c27b0','#00bcd4','#ffeb3b','#ff5722',
-  '#607d8b','#8bc34a','#03a9f4','#f44336',
-  '#673ab7','#009688','#ffc107','#795548',
-];
+import { getTankWaterColor } from '../utils/tankColors';
 
 export default function StatsPage() {
   const t = useT();
@@ -34,6 +27,18 @@ export default function StatsPage() {
     ...s,
     tank_label: `${s.tank_id}`,
   }));
+
+  // Показваме колона само за резервоари с реална активност през периода:
+  //  • постъпване — total_in > 0;  • изпращане — total_out > 0.
+  // Графиката за запълване показва резервоари, при които е имало движение (вход или изход).
+  const incomingData = chartData?.filter((s) => (s.total_in ?? 0) > 0);
+  const outgoingData = chartData?.filter((s) => (s.total_out ?? 0) > 0);
+  const fillData = chartData?.filter(
+    (s) => (s.total_in ?? 0) > 0 || (s.total_out ?? 0) > 0
+  );
+
+  // Цвят по номер на резервоара — същите цветове като на таблото (визуализацията на водата).
+  const cellColor = (s) => getTankWaterColor(s.tank_id);
 
   // Обобщени KPI данни
   const totalIn = stats?.reduce((sum, t) => sum + (t.total_in ?? 0), 0) ?? 0;
@@ -109,7 +114,7 @@ export default function StatsPage() {
                 {t('chart_incoming_by_tank')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={incomingData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                   <XAxis dataKey="tank_label" fontSize={20} stroke="#999" />
                   <YAxis stroke="#999" fontSize={20} width={72} />
@@ -121,8 +126,8 @@ export default function StatsPage() {
                     formatter={(v) => [`${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_in" name={t('bar_incoming')} radius={[4, 4, 0, 0]}>
-                    {stats.map((_, index) => (
-                      <Cell key={index} fill={TANK_COLORS[index % TANK_COLORS.length]} />
+                    {incomingData.map((s) => (
+                      <Cell key={s.tank_id} fill={cellColor(s)} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -135,7 +140,7 @@ export default function StatsPage() {
                 {t('chart_outgoing_by_tank')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={outgoingData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                   <XAxis dataKey="tank_label" fontSize={20} stroke="#999" />
                   <YAxis stroke="#999" fontSize={20} width={72} />
@@ -147,8 +152,8 @@ export default function StatsPage() {
                     formatter={(v) => [`${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_out" name={t('bar_outgoing')} radius={[4, 4, 0, 0]}>
-                    {stats.map((_, index) => (
-                      <Cell key={index} fill={TANK_COLORS[index % TANK_COLORS.length]} />
+                    {outgoingData.map((s) => (
+                      <Cell key={s.tank_id} fill={cellColor(s)} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -161,7 +166,7 @@ export default function StatsPage() {
                 {t('chart_compare_fill')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={fillData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                   <XAxis dataKey="tank_label" fontSize={16} stroke="#999" />
                   <YAxis domain={[0, 100]} unit="%" stroke="#999" fontSize={20} width={72} />
@@ -173,8 +178,8 @@ export default function StatsPage() {
                   />
                   <Legend />
                   <Bar dataKey="avg_level_pct" name={t('legend_avg_level')} radius={[4, 4, 0, 0]}>
-                    {stats.map((_, index) => (
-                      <Cell key={index} fill={TANK_COLORS[index % TANK_COLORS.length]} />
+                    {fillData.map((s) => (
+                      <Cell key={s.tank_id} fill={cellColor(s)} />
                     ))}
                   </Bar>
                 </BarChart>
