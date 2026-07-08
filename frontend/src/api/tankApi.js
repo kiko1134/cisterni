@@ -2,7 +2,7 @@ import axios from 'axios';
 import { mockApi } from '../mocks/mockApi';
 
 // ─── Превключи на false когато backend е готов ────────────────────────────────
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 const api = axios.create({
   baseURL: '/api',
