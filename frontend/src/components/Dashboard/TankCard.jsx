@@ -1,4 +1,4 @@
-import { Box, Typography, Chip, Paper } from '@mui/material';
+import { Box, Typography, Chip, Paper, Tooltip } from '@mui/material';
 import { keyframes } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
@@ -202,26 +202,29 @@ export default function TankCard({ tank, dense = false }) {
         </Box>
       )}
 
-      {/* Алармен индикатор */}
+      {/* Алармен индикатор — икона горе вдясно (текстът се вижда при hover) */}
       {status !== 'normal' && (
-        dense ? (
+        <Tooltip
+          title={
+            (status === 'maxLevel' && t('alarm_max_level')) ||
+            (status === 'minLevel' && t('alarm_min_level')) ||
+            (status === 'highTemp' && t('alarm_high_temp')) ||
+            ''
+          }
+          slotProps={{
+            tooltip: { sx: { fontSize: '1rem', fontWeight: 600, px: 1.5, py: 1 } },
+          }}
+        >
           <WarningAmberIcon
-            sx={{ position: 'absolute', top: 4, right: 4, fontSize: 16, color }}
+            sx={{
+              position: 'absolute',
+              top: 4,
+              right: 4,
+              fontSize: dense ? 16 : 'clamp(16px, 10cqmin, 26px)',
+              color,
+            }}
           />
-        ) : (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5, minWidth: 0 }}>
-            <WarningAmberIcon sx={{ fontSize: 'clamp(12px, 8cqmin, 18px)', color, flexShrink: 0 }} />
-            <Typography
-              noWrap
-              color={color}
-              sx={{ fontSize: 'clamp(0.55rem, 6cqmin, 0.9rem)', lineHeight: 1.1 }}
-            >
-              {status === 'maxLevel' && t('alarm_max_level')}
-              {status === 'minLevel' && t('alarm_min_level')}
-              {status === 'highTemp' && t('alarm_high_temp')}
-            </Typography>
-          </Box>
-        )
+        </Tooltip>
       )}
     </Paper>
   );
