@@ -28,19 +28,23 @@ export default function StatsPage() {
   // цветна колона само за резервоарите с реално движение — останалите слотове
   // са празни (нулева/липсваща стойност), но пазят мястото си на скалата.
   const TANK_COUNT = 16;
+  // Праг за показване: движение под 0.1 t е шум и не се изобразява в никоя графика.
+  const MIN_MOVEMENT_T = 0.1;
   const statById = new Map((stats ?? []).map((s) => [s.tank_id, s]));
   const chartData = Array.from({ length: TANK_COUNT }, (_, i) => {
     const id = i + 1;
     const s = statById.get(id) ?? {};
     const total_in = s.total_in ?? 0;
     const total_out = s.total_out ?? 0;
-    const moved = total_in > 0 || total_out > 0;
+    const hasIn = total_in >= MIN_MOVEMENT_T;
+    const hasOut = total_out >= MIN_MOVEMENT_T;
+    const moved = hasIn || hasOut;
     return {
       tank_id: id,
       tank_label: `${id}`,
-      // Стойност само при движение → колона; иначе празен слот на скалата.
-      total_in: total_in > 0 ? total_in : null,
-      total_out: total_out > 0 ? total_out : null,
+      // Стойност само при движение ≥ прага → колона; иначе празен слот на скалата.
+      total_in: hasIn ? total_in : null,
+      total_out: hasOut ? total_out : null,
       avg_level_pct: moved ? (s.avg_level_pct ?? 0) : null,
     };
   });
