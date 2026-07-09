@@ -134,6 +134,9 @@ export default function TrendChart({ data, isLoading }) {
 
               <Tooltip
                 labelFormatter={formatTooltipLabel}
+                formatter={(value) =>
+                  typeof value === 'number' ? value.toFixed(1) : value
+                }
                 contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
               />
               <Legend />

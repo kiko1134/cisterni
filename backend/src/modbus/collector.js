@@ -27,8 +27,13 @@ const FIRST_REGISTER = REG_MASS_BASE;
 const LAST_REGISTER = REG_OVERHEAT;
 const TOTAL_REGS = LAST_REGISTER - FIRST_REGISTER + 1; // 800..850 inclusive => 51 registers
 
-const MASS_SCALE = parseFloat(process.env.MODBUS_MASS_SCALE || '1');          
+const MASS_SCALE = parseFloat(process.env.MODBUS_MASS_SCALE || '1');
 const TEMPERATURE_SCALE = parseFloat(process.env.MODBUS_TEMPERATURE_SCALE || '1');
+
+// Праг (dead-band) за отчитане на постъпил/изразходван материал: масата се
+// съхранява в kg, а собствениците искат праг от 0.1 t = 100 kg. Промени под
+// този праг се третират като шум на кантара и не се натрупват.
+const MATERIAL_THRESHOLD_KG = 100;
 const WORD_ORDER = (process.env.MODBUS_32BIT_WORD_ORDER || 'LOW_HIGH').toUpperCase();
 
 function holdingAddress(plcRegister) {
@@ -158,9 +163,11 @@ async function accumulateMaterial(readings, prevMass) {
     }
 
     const diff = r.mass - prev;
-    if (diff > 0) {
+    // Dead-band: пренебрегваме промени под прага (шум на кантара), за да не се
+    // натрупват фалшиви тонове постъпил/изразходван материал.
+    if (diff >= MATERIAL_THRESHOLD_KG) {
       await pool.query('UPDATE tanks SET entered_material = entered_material + $2 WHERE id = $1', [r.tank_id, diff]);
-    } else if (diff < 0) {
+    } else if (diff <= -MATERIAL_THRESHOLD_KG) {
       await pool.query('UPDATE tanks SET used_material = used_material + $2 WHERE id = $1', [r.tank_id, -diff]);
     }
   }
@@ -215,7 +222,9 @@ async function collectOnce() {
 
     const rawMass = combineWordsToFloat32(w1, w2);
 
-    const massKg = parseFloat((rawMass * MASS_SCALE).toFixed(2));
+    // Приземяваме масата на 0 — near-empty кантар дрейфва под нулата (шум/tare),
+    // но отрицателна маса няма физически смисъл и обърква тренда/картите.
+    const massKg = Math.max(0, parseFloat((rawMass * MASS_SCALE).toFixed(2)));
 
     const tempPlcReg = REG_TEMPS_BASE + i;
     const rawTemp = regs[regIndex(REG_TEMPS_BASE + i)];

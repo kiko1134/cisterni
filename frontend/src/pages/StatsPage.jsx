@@ -22,20 +22,28 @@ export default function StatsPage() {
 
   const { data: stats, isLoading, isError } = useTankStats(range.from, range.to);
 
-  // Преведено име на резервоара за оси и tooltip (напр. „Резервоар 1“).
-  const chartData = stats?.map((s) => ({
-    ...s,
-    tank_label: `${s.tank_id}`,
-  }));
-
-  // Показваме колона само за резервоари с реална активност през периода:
-  //  • постъпване — total_in > 0;  • изпращане — total_out > 0.
-  // Графиката за запълване показва резервоари, при които е имало движение (вход или изход).
-  const incomingData = chartData?.filter((s) => (s.total_in ?? 0) > 0);
-  const outgoingData = chartData?.filter((s) => (s.total_out ?? 0) > 0);
-  const fillData = chartData?.filter(
-    (s) => (s.total_in ?? 0) > 0 || (s.total_out ?? 0) > 0
-  );
+  // Фиксирана скала: винаги всичките 16 резервоара присъстват като слотове по
+  // оста, за да е ширината на една колона = (ширина на скалата / 16) и да остане
+  // еднаква независимо колко резервоара са се променили през периода. Показваме
+  // цветна колона само за резервоарите с реално движение — останалите слотове
+  // са празни (нулева/липсваща стойност), но пазят мястото си на скалата.
+  const TANK_COUNT = 16;
+  const statById = new Map((stats ?? []).map((s) => [s.tank_id, s]));
+  const chartData = Array.from({ length: TANK_COUNT }, (_, i) => {
+    const id = i + 1;
+    const s = statById.get(id) ?? {};
+    const total_in = s.total_in ?? 0;
+    const total_out = s.total_out ?? 0;
+    const moved = total_in > 0 || total_out > 0;
+    return {
+      tank_id: id,
+      tank_label: `${id}`,
+      // Стойност само при движение → колона; иначе празен слот на скалата.
+      total_in: total_in > 0 ? total_in : null,
+      total_out: total_out > 0 ? total_out : null,
+      avg_level_pct: moved ? (s.avg_level_pct ?? 0) : null,
+    };
+  });
 
   // Цвят по номер на резервоара — същите цветове като на таблото (визуализацията на водата).
   const cellColor = (s) => getTankWaterColor(s.tank_id);
@@ -114,19 +122,19 @@ export default function StatsPage() {
                 {t('chart_incoming_by_tank')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={incomingData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_label" fontSize={20} stroke="#999" />
-                  <YAxis stroke="#999" fontSize={20} width={72} />
+                  <XAxis dataKey="tank_label" stroke="#999" tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
+                  <YAxis stroke="#999" width={72} tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
                     labelStyle={{ color: '#fff' }}
                     itemStyle={{ color: '#fff' }}
                     labelFormatter={() => ''}
-                    formatter={(v) => [`${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
+                    formatter={(v) => [v == null ? '—' : `${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_in" name={t('bar_incoming')} radius={[4, 4, 0, 0]}>
-                    {incomingData.map((s) => (
+                    {chartData.map((s) => (
                       <Cell key={s.tank_id} fill={cellColor(s)} />
                     ))}
                   </Bar>
@@ -140,19 +148,19 @@ export default function StatsPage() {
                 {t('chart_outgoing_by_tank')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={outgoingData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_label" fontSize={20} stroke="#999" />
-                  <YAxis stroke="#999" fontSize={20} width={72} />
+                  <XAxis dataKey="tank_label" stroke="#999" tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
+                  <YAxis stroke="#999" width={72} tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
                     labelStyle={{ color: '#fff' }}
                     itemStyle={{ color: '#fff' }}
                     labelFormatter={() => ''}
-                    formatter={(v) => [`${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
+                    formatter={(v) => [v == null ? '—' : `${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_out" name={t('bar_outgoing')} radius={[4, 4, 0, 0]}>
-                    {outgoingData.map((s) => (
+                    {chartData.map((s) => (
                       <Cell key={s.tank_id} fill={cellColor(s)} />
                     ))}
                   </Bar>
@@ -166,19 +174,19 @@ export default function StatsPage() {
                 {t('chart_compare_fill')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={fillData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_label" fontSize={16} stroke="#999" />
-                  <YAxis domain={[0, 100]} unit="%" stroke="#999" fontSize={20} width={72} />
+                  <XAxis dataKey="tank_label" stroke="#999" tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 16 }} />
+                  <YAxis domain={[0, 100]} unit="%" stroke="#999" width={72} tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
                     labelStyle={{ color: '#fff' }}
                     itemStyle={{ color: '#fff' }}
-                    formatter={(v) => [`${v?.toFixed(1)}%`]}
+                    formatter={(v) => [v == null ? '—' : `${v.toFixed(1)}%`]}
                   />
                   <Legend />
                   <Bar dataKey="avg_level_pct" name={t('legend_avg_level')} radius={[4, 4, 0, 0]}>
-                    {fillData.map((s) => (
+                    {chartData.map((s) => (
                       <Cell key={s.tank_id} fill={cellColor(s)} />
                     ))}
                   </Bar>
