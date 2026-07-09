@@ -206,7 +206,7 @@ export default function StatsPage() {
               <ResponsiveContainer width="100%" height={460}>
                 <BarChart data={fillData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_label" stroke="#999" interval={0} tick={makeTick(fillSet, 16)} />
+                  <XAxis dataKey="tank_label" stroke="#999" interval={0} tick={makeTick(fillSet, 20)} />
                   <YAxis domain={[0, 100]} unit="%" stroke="#999" width={72} tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
@@ -214,7 +214,6 @@ export default function StatsPage() {
                     itemStyle={{ color: '#fff' }}
                     formatter={(v) => [v == null ? '—' : `${v.toFixed(1)}%`]}
                   />
-                  <Legend />
                   <Bar dataKey="avg_level_pct" name={t('legend_avg_level')} radius={[4, 4, 0, 0]}>
                     {fillData.map((s) => (
                       <Cell key={s.tank_id} fill={cellColor(s)} />
