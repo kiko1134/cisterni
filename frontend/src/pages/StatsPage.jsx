@@ -45,6 +45,32 @@ export default function StatsPage() {
     };
   });
 
+  const padTo16 = (items) => {
+    const out = items.map((d) => ({ ...d }));
+    for (let i = out.length; i < TANK_COUNT; i++) {
+      out.push({ tank_id: `pad-${i}`, tank_label: `pad-${i}`, total_in: null, total_out: null, avg_level_pct: null });
+    }
+    return out;
+  };
+  const incomingData = padTo16(chartData.filter((d) => d.total_in != null));
+  const outgoingData = padTo16(chartData.filter((d) => d.total_out != null));
+  const fillData = padTo16(chartData.filter((d) => d.avg_level_pct != null));
+
+  // Кои X-етикети да се изписват — само реалните резервоари (не празните слотове).
+  const incomingSet = new Set(incomingData.filter((d) => d.total_in != null).map((d) => d.tank_label));
+  const outgoingSet = new Set(outgoingData.filter((d) => d.total_out != null).map((d) => d.tank_label));
+  const fillSet = new Set(fillData.filter((d) => d.avg_level_pct != null).map((d) => d.tank_label));
+
+  // Рендира етикет по X само за активните резервоари; за останалите — нищо.
+  const makeTick = (activeSet, fontSize) => ({ x, y, payload }) =>
+    activeSet.has(payload.value) ? (
+      <text x={x} y={y} dy={16} textAnchor="middle" fill="#fff" fontWeight="bold" fontSize={fontSize}>
+        {payload.value}
+      </text>
+    ) : (
+      <g />
+    );
+
   // Цвят по номер на резервоара — същите цветове като на таблото (визуализацията на водата).
   const cellColor = (s) => getTankWaterColor(s.tank_id);
 
@@ -122,9 +148,9 @@ export default function StatsPage() {
                 {t('chart_incoming_by_tank')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={incomingData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_label" stroke="#999" tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
+                  <XAxis dataKey="tank_label" stroke="#999" interval={0} tick={makeTick(incomingSet, 20)} />
                   <YAxis stroke="#999" width={72} tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
@@ -134,7 +160,7 @@ export default function StatsPage() {
                     formatter={(v) => [v == null ? '—' : `${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_in" name={t('bar_incoming')} radius={[4, 4, 0, 0]}>
-                    {chartData.map((s) => (
+                    {incomingData.map((s) => (
                       <Cell key={s.tank_id} fill={cellColor(s)} />
                     ))}
                   </Bar>
@@ -148,9 +174,9 @@ export default function StatsPage() {
                 {t('chart_outgoing_by_tank')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={outgoingData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_label" stroke="#999" tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
+                  <XAxis dataKey="tank_label" stroke="#999" interval={0} tick={makeTick(outgoingSet, 20)} />
                   <YAxis stroke="#999" width={72} tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
@@ -160,7 +186,7 @@ export default function StatsPage() {
                     formatter={(v) => [v == null ? '—' : `${v.toLocaleString('bg-BG', { maximumFractionDigits: 1 })} t`]}
                   />
                   <Bar dataKey="total_out" name={t('bar_outgoing')} radius={[4, 4, 0, 0]}>
-                    {chartData.map((s) => (
+                    {outgoingData.map((s) => (
                       <Cell key={s.tank_id} fill={cellColor(s)} />
                     ))}
                   </Bar>
@@ -174,9 +200,9 @@ export default function StatsPage() {
                 {t('chart_compare_fill')}
               </Typography>
               <ResponsiveContainer width="100%" height={460}>
-                <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                <BarChart data={fillData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                  <XAxis dataKey="tank_label" stroke="#999" tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 16 }} />
+                  <XAxis dataKey="tank_label" stroke="#999" interval={0} tick={makeTick(fillSet, 16)} />
                   <YAxis domain={[0, 100]} unit="%" stroke="#999" width={72} tick={{ fill: '#fff', fontWeight: 'bold', fontSize: 20 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }}
@@ -186,7 +212,7 @@ export default function StatsPage() {
                   />
                   <Legend />
                   <Bar dataKey="avg_level_pct" name={t('legend_avg_level')} radius={[4, 4, 0, 0]}>
-                    {chartData.map((s) => (
+                    {fillData.map((s) => (
                       <Cell key={s.tank_id} fill={cellColor(s)} />
                     ))}
                   </Bar>
