@@ -40,9 +40,14 @@ export default function TrendChart({ data, isLoading }) {
     .filter((v) => v != null && !Number.isNaN(v));
   const massMin = massValues.length ? Math.min(...massValues) : 0;
   const massMax = massValues.length ? Math.max(...massValues) : 0;
-  const massPad = Math.max((massMax - massMin) * 0.1, 0.5);
+  // Осигуряваме минимален обхват на оста, за да не изглеждат дребните
+  // промени (напр. 0.1 t) прекалено драматично при почти плоска графика.
+  const minSpan = Math.max(massMax * 0.25, 10);
+  const dataSpan = massMax - massMin;
+  const span = Math.max(dataSpan, minSpan);
+  const center = (massMin + massMax) / 2;
   const massDomain = massValues.length
-    ? [Math.floor(massMin - massPad), Math.ceil(massMax + massPad)]
+    ? [Math.max(0, Math.floor(center - span / 2)), Math.ceil(center + span / 2)]
     : [0, 'auto'];
 
   // Форматиране на оста X спрямо обхвата
